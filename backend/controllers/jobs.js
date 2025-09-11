@@ -1,9 +1,11 @@
 import Job from "../models/Job.js";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError } from "../errors/index.js";
+import "express-async-errors";
 
 const getAllJobs = async (req, res) => {
   const jobs = await Job.find({ createdBy: req.user.userId }).sort("createdAt");
+
   res.status(StatusCodes.OK).json({ jobs, count: jobs.length });
 };
 
@@ -22,6 +24,7 @@ const getJob = async (req, res) => {
 const createJob = async (req, res) => {
   req.body.createdBy = req.user.userId;
   const job = await Job.create(req.body);
+
   res.status(StatusCodes.CREATED).json({ job });
 };
 
@@ -35,6 +38,7 @@ const updateJob = async (req, res) => {
   if (company === "" || position === "") {
     throw new BadRequestError("Company or Position fields cannot be empty");
   }
+
   const job = await Job.findByIdAndUpdate(
     { _id: jobId, createdBy: userId }, // Search condition (filter)
     req.body, // Data to update

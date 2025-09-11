@@ -1,6 +1,7 @@
 import { UnauthenticatedError, BadRequestError } from "../errors/index.js";
 import User from "../models/User.js";
 import { StatusCodes } from "http-status-codes";
+import "express-async-errors";
 
 // using hash method to hash security elements into a special string
 const register = async (req, res) => {

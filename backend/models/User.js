@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// schema -> model -> document 
+// schema -> model -> document
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -34,18 +34,22 @@ UserSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// instance method of schema 
+// 'Instance' method of schema
 // use regular function instead of arrow func bcause the latter does not support 'this' pointer
-UserSchema.methods.createJWT = function() {
-  return jwt.sign({ userId: this._id, name: this.name }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_LIFETIME,
-  });
-}
+UserSchema.methods.createJWT = function () {
+  return jwt.sign(
+    { userId: this._id, name: this.name },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_LIFETIME,
+    }
+  );
+};
 
-UserSchema.methods.comparePassword = async function(candidatePassword) {  
+UserSchema.methods.comparePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
   return isMatch;
-}
+};
 
 const User = mongoose.model("User", UserSchema);
 

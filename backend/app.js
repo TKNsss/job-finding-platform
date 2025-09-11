@@ -1,7 +1,6 @@
 // extra sercurity packages
 import helmet from "helmet";
 import cors from "cors";
-import xss from "xss-clean";
 import mongoSanitize from "express-mongo-sanitize";
 import rateLimiter from "express-rate-limit";
 // data security environment package
@@ -21,25 +20,20 @@ import express from "express";
 const app = express();
 // go check the headers in network tab to see how security packages work
 
-// in 15 mins, users only allow to make 100 requests
-const limiter = rateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100,
-  message: "Too many request for this IP, please try again after 15 minutes!",
-});
-app.use(limiter);
-// app.use("/api", limiter) -> you can do this for other api
-
 // is a middleware that parses incoming JSON payloads from HTTP requests and makes them available in req.body.
 app.use(express.json());
 // secure Express apps by setting HTTP response headers (hide credentials of response)
 app.use(helmet());
 // allow a website on 1 URL to request data from different URL
 app.use(cors());
-// Data sanitize against site script
-app.use(xss());
-// Data sanitize against NoSQL injection
-app.use(mongoSanitize());
+app.use(mongoSanitize()); 
+
+const limiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 100, // each IP can make 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
+app.use(limiter);
 
 // routes
 app.use("/api/v1/auth", authRouter);
